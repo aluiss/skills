@@ -24,8 +24,9 @@ app/(private)/<area>/<sub>/page.tsx
 ```
 
 Um layout por aplicação (ou por grupo de rotas quando o shell muda de verdade), não um por área.
-A página contém a tela: estado, chamadas de dados, composição. Ela pode ser longa; o que não pode
-é esconder regra de negócio dentro de JSX repetido.
+A página é o orquestrador da tela: estado, chamadas de dados, mutações, modais e composição. As
+seções visuais (indicadores, filtros, tabela) são componentes próprios — ver "Página dividida em
+seções" na seção 5. O que a página não pode é esconder regra de negócio dentro de JSX repetido.
 
 Página de índice de área redireciona para a primeira rota que o usuário pode ver, em vez de
 renderizar um conteúdo próprio que ninguém mantém.
@@ -117,6 +118,48 @@ oito props e metade delas só atravessa para outro componente.
 Componente compartilhado entre áreas vive em `components/custom/` na raiz; específico de uma
 área, dentro dela. Se um dia dois apps consumirem o mesmo componente, ele sobe para um pacote de
 UI — não para uma pasta "shared" que vira depósito.
+
+### Página dividida em seções
+
+Tela de operação típica — cabeçalho, cards de indicadores, barra de filtros, tabela — tem cada
+seção num componente. A página fica com o que é da tela inteira; a seção, com o que é dela. Sem
+isso, a página passa de 500 linhas misturando consulta, contagem de KPI, colunas e cor de linha,
+e qualquer ajuste numa seção obriga a ler todas.
+
+```
+app/(private)/pedidos/controle/page.tsx         # orquestrador
+components/custom/pedidos/pedidosKpis.tsx       # cards de indicadores
+components/custom/pedidos/pedidosFilters.tsx    # busca + selects
+components/custom/pedidos/pedidosTable.tsx      # tabela, linhas, faixa de grupo, paginação
+lib/pedidos/controle.ts                         # tipos e funções puras usados por mais de um
+```
+
+**Fica na página**: `useQuery`/`useMutation`, estado compartilhado entre seções (os filtros mudam
+os KPIs *e* a tabela), paginação quando outro comportamento depende dela (ex.: "ir para hoje"
+troca de página), os modais e o cabeçalho com os botões. Carregando e erro da consulta também,
+porque é a página que tem a consulta.
+
+**Vai para a seção**: o que só ela usa. KPIs recebem os itens já filtrados e fazem as contagens;
+filtros recebem os itens sem filtro e montam as opções de cada select; a tabela recebe a página
+atual e faz o agrupamento por dia, as colunas, as cores e o rodapé de paginação.
+
+Contrato das seções:
+
+- **Dados entram por props, eventos saem por callback.** A seção não busca dado nem abre modal:
+  avisa a página (`onOpen(item)`, `onSchedule(item)`, `onHistory(alvo)`) e a página decide. É o
+  que permite reaproveitar a tabela em outra tela com outro modal.
+- **Filtros como um objeto só** (`value` + `onChange`) com um `EMPTY_FILTERS` exportado, em vez de
+  um `useState` por filtro passado um a um. Filtro novo vira um campo, não quatro props.
+- **Linhas da tabela como subcomponentes no mesmo arquivo** (`ItemRow`, `GroupRow`), e colunas
+  declaradas numa constante no topo. Só sobem para arquivo próprio se outra tabela usar.
+- **Texto que depende de contexto vem pronto da página** — ex.: a mensagem de lista vazia ("nada
+  neste mês" × "nada com estes filtros"), porque só a página sabe se havia dados antes do filtro.
+- **Tipos e helpers puros** usados pela página e por uma seção (tipo da linha, formatação de dia,
+  constantes de filtro) vão para `lib/<area>/<tela>.ts`, não para dentro de um dos componentes.
+
+Na hora de extrair, mova o código como está — mesmos comentários, mesmas classes, mesma lógica.
+Refatorar e mudar comportamento no mesmo passo torna impossível conferir que a tela continua
+igual.
 
 ## 6. Modais
 

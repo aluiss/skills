@@ -117,6 +117,10 @@ borda HTTP e a regra em `server/<dominio>/service.ts`. Projeto simples: `src/{ui
 A página é o orquestrador: estado, dados e composição. Extraia componente quando o bloco se
 repete, tem estado próprio ou a página ficou difícil de ler — não por contagem de linhas.
 
+- **Página dividida em seções**: cards de KPI, barra de filtros e tabela são componentes em
+  `components/custom/<area>/`. Dados entram por props, eventos saem por callback; consultas,
+  mutações, modais e estado compartilhado entre seções ficam na página.
+
 - **Um cliente HTTP só**; hooks de domínio expõem só as funções que chamam a API; o cache
   (react-query) fica visível na tela, com chave contendo tudo que muda o resultado.
 - **Modal = um arquivo por ação**: recebe `open`/`onOpenChange` e os dados, faz a própria

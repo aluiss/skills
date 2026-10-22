@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 — 2026-10-22
+
+- Front-end: novo padrão "Página dividida em seções" (`references/frontend.md`, seção 5). Cards
+  de KPI, filtros e tabela viram componentes próprios; a página só orquestra (consultas,
+  mutações, modais, estado compartilhado). Inclui o contrato das seções e onde ficam tipos e
+  helpers puros (`lib/<area>/<tela>.ts`).
+
 ## 1.0.0 — 2026-10-06
 
 - Primeira versão compartilhada. Substitui a skill pessoal `padroes-engenharia`, absorvendo todo
