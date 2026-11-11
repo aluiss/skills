@@ -140,7 +140,9 @@ correto e legível → ação óbvia → consistência → beleza.**
   dados. O vazio e o erro dizem o que aconteceu e o que fazer.
 - **Feedback para toda ação**, repassando a mensagem do backend; botão desabilitado durante a
   submissão (clique duplo vira registro duplicado).
-- **Destrutivo pede confirmação** dizendo exatamente o que será afetado.
+- **Destrutivo pede confirmação** dizendo exatamente o que será afetado; o que é reversível
+  executa na hora com **"Desfazer"** no toast.
+- **Tabela longa ordenável**, filtros acima dela, busca que ignora acento.
 - **Tokens de tema**, modo escuro funcionando, responsivo até celular, foco visível, contraste
   AA, nada comunicado só por cor.
 - **Textos no idioma do usuário**, no vocabulário da operação, sem jargão técnico.

@@ -17,7 +17,8 @@ que muda é a ênfase (operação × conversão), não os princípios.
 9. Acessibilidade
 10. Telas de operação e painéis
 11. Sites públicos
-12. Checklist antes de entregar
+12. Referências externas
+13. Checklist antes de entregar
 
 ## 1. Prioridades
 
@@ -61,15 +62,26 @@ Todo bloco que carrega dados tem os quatro, sempre:
 | **Com dados** | O conteúdo |
 
 Vazio por filtro ≠ vazio de verdade: "Nenhum resultado com esse filtro" é diferente de "Ainda
-não há registros".
+não há registros". O vazio por filtro oferece **Limpar filtros** ali mesmo; o vazio de verdade
+diz o que fazer para o primeiro registro aparecer (botão de criar, ou de onde o dado vem). Só
+"Nenhum registro encontrado." não basta.
 
 ## 5. Formulários
 
 - **Rótulo visível** em todo campo (placeholder não é rótulo — some ao digitar).
 - **Validação no próprio campo**, com a mensagem dizendo o que corrigir ("A senha precisa ter
   pelo menos um número"), não "campo inválido". A mesma regra roda no backend.
+- **Obrigatório marcado no rótulo**, antes do envio: asterisco no rótulo do campo e uma legenda
+  "* obrigatório" no formulário. Quando quase tudo é obrigatório, marque os opcionais
+  ("(opcional)"). Descobrir pelo erro depois de enviar é tarde.
 - **Valores padrão inteligentes** e sugestões pré-preenchidas quando o sistema sabe a resposta
-  provável — a pessoa confere em vez de digitar.
+  provável — a pessoa confere em vez de digitar. Nunca venha pré-marcado o que exige decisão
+  consciente (aceite, consentimento, envio a terceiros, custo).
+- **Formato estruturado** para dado de formato fixo (CPF, CNPJ, telefone, CEP, hora): máscara ou
+  campo que aceita colar com ou sem pontuação e normaliza sozinho. Data por seletor, não por
+  texto livre.
+- **Escolha em lista longa** (mais de ~10 opções: usuários, bairros, técnicos) usa campo com
+  busca (combobox), não um select que obriga a rolar.
 - **Botão de envio desabilitado** durante a submissão, com texto de progresso ("Salvando...").
 - Em erro, **mantenha o que foi digitado**; o modal não fecha.
 - Campos relacionados agrupados; ordem igual à do processo real da operação.
@@ -81,6 +93,14 @@ não há registros".
   a mensagem do backend (ela é específica; texto genérico descarta a informação).
 - **Ação destrutiva ou irreversível pede confirmação**, dizendo exatamente o que será afetado
   ("Excluir 3 vagas de 05/10?"). O botão de confirmar repete o verbo ("Excluir"), não "OK".
+- **Ação reversível prefere "Desfazer" a confirmar.** Desvincular, arquivar, mover, tirar de uma
+  lista: execute na hora e mostre no toast "Técnico removido do grupo — Desfazer" (por alguns
+  segundos). Confirmação que se repete o dia todo vira clique automático e deixa de proteger. A
+  confirmação fica para o que não volta (exclusão definitiva, envio ao ERP, ação em massa).
+- **Modal só para interromper com uma decisão** ou para uma tarefa curta e focada. Não use modal
+  para avisar sucesso ou erro (é toast), para formulário longo (é página ou painel lateral) nem
+  para editar um único valor (é edição no lugar: clica no valor, vira campo, Enter salva, Esc
+  cancela). Modal dentro de modal, nunca.
 - **Ação que só aparece uma vez** (senha gerada, token criado) avisa que não será exibida de
   novo e oferece copiar.
 - Ação proibida para o usuário: esconda, ou mostre desabilitada com o motivo no tooltip quando
@@ -91,7 +111,16 @@ não há registros".
 ## 7. Tabelas, filtros e listas
 
 - Cabeçalho fixo em listas longas; colunas numéricas alinhadas à direita.
-- Busca **sem diferenciar acento e caixa** ("joao" acha "JOÃO").
+- **Ordenação por coluna** em tabela com mais de ~10 linhas ou paginada: cabeçalho clicável,
+  primeiro clique crescente, segundo decrescente, seta mostrando a direção e `aria-sort` no
+  `<th>`. A ordenação padrão é a que a operação usa (prazo, horário), e fica evidente.
+  Exceção: tabela **agrupada por dia** ou com **ordem manual** (arrastar para reordenar), como
+  agenda e roteamento — a ordem ali é a própria informação, e ordenar por coluna a desfaria.
+- **Filtros acima da tabela**, nunca escondidos no cabeçalho da coluna (ver §3). Catálogos como o
+  ui-patterns.com sugerem filtro por coluna; aqui a regra é a nossa, porque filtro no cabeçalho
+  quase ninguém descobre.
+- Busca **sem diferenciar acento e caixa** ("joao" acha "JOÃO"): os dois lados da comparação
+  passam pela mesma função compartilhada de normalização, nunca um `toLowerCase()` solto.
 - Filtros do usuário lembrados por tela (ver `frontend.md` §10) e um jeito óbvio de limpar.
 - Paginação ou rolagem com total visível ("124 protocolos").
 - Linha clicável quando abre detalhe; ações da linha num menu de três pontos ou ícones com
@@ -107,7 +136,9 @@ não há registros".
 - Mensagem de erro diz **o que houve e o que fazer**: "Este horário acabou de ser ocupado —
   escolha outro."
 - Sem jargão técnico, código de erro ou nome de tabela na tela.
-- Consistência de termos: escolha "excluir" ou "remover" e use sempre o mesmo.
+- Consistência de termos: **"Excluir"** apaga o registro; **"Remover"** tira de uma lista ou
+  vínculo e o registro continua existindo (remover técnico do grupo). Nunca "Deletar" ou
+  "Apagar".
 - Changelog e avisos escritos do ponto de vista de quem usa (ver `documentacao.md`).
 
 ## 9. Acessibilidade
@@ -116,7 +147,11 @@ O mínimo, que o shadcn já facilita:
 
 - **Contraste AA** (4,5:1 para texto normal) nos dois temas.
 - **Foco visível** e toda ação alcançável por teclado; ordem de tabulação na ordem visual.
-- Botão só com ícone tem `aria-label`; ícone decorativo tem `aria-hidden`.
+- Botão só com ícone tem `aria-label`; ícone decorativo tem `aria-hidden`. **Tooltip não é
+  rótulo**: o tooltip ajuda quem vê, mas o leitor de tela lê o `aria-label` — repita nele o
+  texto do tooltip, com o objeto quando houver vários na tela (`Remover ${nome}`).
+- Texto de no mínimo 12 px (`text-xs`); tamanhos como `text-[10px]` só em legenda secundária que
+  também tenha a informação em outro lugar.
 - `label` associado a cada campo; erros anunciados junto do campo.
 - Área de toque de pelo menos 40 px no celular.
 - Movimento e animação discretos; nada que pisque.
@@ -141,11 +176,26 @@ Telas usadas o dia inteiro (agenda, roteamento, monitoramento) têm necessidades
 - Uma chamada para ação principal por página; contato fácil de achar.
 - Formulário público com proteção contra robô e limite de envio no backend.
 
-## 12. Checklist antes de entregar
+## 12. Referências externas
 
-- [ ] Quatro estados (carregando, vazio, erro, dados) em todo bloco de dados
+A norma é este documento, as **10 heurísticas de Nielsen** e a **WCAG 2.1 AA**. Para o *como* de
+um padrão específico (ordenação, edição no lugar, assistente em etapas, autocompletar, estado
+vazio), consulte o catálogo **ui-patterns.com**: cada padrão traz problema, quando usar, quando
+não usar e a justificativa. Duas ressalvas:
+
+- O catálogo é antigo em vários pontos e quase não trata de acessibilidade; onde ele divergir
+  deste documento (ex.: filtro no cabeçalho da coluna), vale este documento.
+- A seção **"Persuasive patterns"** (escassez, contagem regressiva, sequências, recompensas
+  variáveis) não se aplica a telas internas. Em site público, nada que pressione ou engane:
+  cancelar é tão fácil quanto assinar, sem custo escondido, sem urgência inventada.
+
+## 13. Checklist antes de entregar
+
+- [ ] Quatro estados (carregando, vazio, erro, dados) em todo bloco de dados; vazio com próximo passo
 - [ ] Modo escuro e celular conferidos
-- [ ] Textos no idioma e no vocabulário do usuário; mensagens de erro acionáveis
-- [ ] Ações com feedback; destrutivas com confirmação
-- [ ] Teclado e foco funcionando; ícones com `aria-label`
+- [ ] Textos no idioma e no vocabulário do usuário; mensagens de erro acionáveis; "Excluir" × "Remover" certos
+- [ ] Ações com feedback; destrutivas com confirmação; reversíveis com "Desfazer"
+- [ ] Campos obrigatórios marcados; formato fixo com máscara; lista longa com busca
+- [ ] Tabela longa ordenável; filtros acima; busca ignora acento
+- [ ] Teclado e foco funcionando; ícones com `aria-label`, mesmo com tooltip
 - [ ] Nada comunicado só por cor
